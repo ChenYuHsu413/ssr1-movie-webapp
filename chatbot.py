@@ -134,8 +134,14 @@ def answer(message, movies):
     for name, fn in providers:
         try:
             return fn(message, movies)
-        except Exception:
-            failed.append(name)
+        except Exception as e:
+            # keep a short, readable reason (e.g. "Groq: RateLimitError")
+            failed.append(f"{name}: {type(e).__name__}")
 
-    note = f"({'/'.join(failed)} 调用失败，已回退到本地搜索)\n" if failed else ""
+    if not providers:
+        note = "(未配置任何 API 密钥，使用本地搜索)\n"
+    elif failed:
+        note = f"({'; '.join(failed)} 调用失败，已回退到本地搜索)\n"
+    else:
+        note = ""
     return note + _local_answer(message, movies)
