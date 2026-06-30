@@ -76,12 +76,16 @@ st.markdown("""
   /* ----- chatbot ----- */
   /* round floating action button (closed state) */
   .st-key-chat_open_btn button {
-    width:60px; height:60px; border-radius:50%!important;
+    width:60px!important; height:60px!important; min-height:60px!important;
+    border-radius:50%!important; padding:0!important;
     background:linear-gradient(135deg,#4f6ef7,#7c8cff)!important; color:#fff!important;
-    border:none!important; font-size:26px!important; padding:0!important;
-    box-shadow:0 6px 18px rgba(79,110,247,.5)!important; transition:transform .15s;}
+    border:none!important; box-shadow:0 6px 18px rgba(79,110,247,.45)!important;
+    display:flex!important; align-items:center!important; justify-content:center!important;
+    transition:transform .15s;}
   .st-key-chat_open_btn button:hover {transform:scale(1.08);}
-  .st-key-chat_open_btn button p {font-size:26px!important;}
+  .st-key-chat_open_btn button p,
+  .st-key-chat_open_btn button div {font-size:26px!important; margin:0!important;
+    line-height:1!important;}
   /* close (✕) button */
   .st-key-chat_close button {
     background:transparent!important; border:none!important; color:#6b7280!important;
