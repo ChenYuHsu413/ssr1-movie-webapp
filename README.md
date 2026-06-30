@@ -5,6 +5,9 @@ A small end-to-end project that scrapes the 100 movies from
 database, and serves a **FastAPI** website with a poster grid, live search,
 category filters, and an AI chatbot over the catalog.
 
+**🎬 Live demo:** https://ssr1-movie-webapp-chenyu.streamlit.app/
+(the Streamlit version — see [`streamlit_app.py`](streamlit_app.py))
+
 ## Features
 
 - **Scraper** (`crawler.py`) — pulls all 10 pages and extracts title, categories,
@@ -63,14 +66,20 @@ python crawler.py   # refreshes posters/, movies.csv, movies.xlsx, MOVIES.md, mo
 | `chatbot.py` | Catalog chatbot with provider cascade + local fallback |
 | `movie.db` | SQLite catalog of 100 movies (the app's data source) |
 | `posters/` | Downloaded poster thumbnails |
+| `streamlit_app.py` | Streamlit UI (deployed on Streamlit Community Cloud) |
 | `MOVIES.md` | Generated Markdown table of all movies with posters |
 | `DEPLOY.md` | Hosting instructions (Render / Railway / Hugging Face) |
 
 ## Deployment
 
-See [`DEPLOY.md`](DEPLOY.md). In short, it's a standard FastAPI app — set the
-start command to `uvicorn app:app --host 0.0.0.0 --port $PORT`. Render's free web
-service is the simplest target; `requirements.txt` and `Procfile` are included.
+There are two front-ends sharing the same `db.py` and `chatbot.py`:
 
-> Note: this is an ASGI server app, so it does **not** run on Streamlit
-> Community Cloud as-is (that platform only hosts `streamlit run` apps).
+- **Streamlit** (`streamlit_app.py`) — live at
+  https://ssr1-movie-webapp-chenyu.streamlit.app/. Deploy on
+  [Streamlit Community Cloud](https://share.streamlit.io): set the main file to
+  `streamlit_app.py`. API keys go in the app's **Secrets** (TOML).
+- **FastAPI** (`app.py`) — a standard ASGI app with a richer custom UI and a JSON
+  API. Set the start command to `uvicorn app:app --host 0.0.0.0 --port $PORT`;
+  Render's free web service is the simplest target. See [`DEPLOY.md`](DEPLOY.md).
+  (Note: FastAPI does **not** run on Streamlit Cloud — that's what the Streamlit
+  version is for.)
