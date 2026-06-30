@@ -208,7 +208,7 @@ with widget:
                 st.session_state.msgs.append(("assistant", answer(user_msg, movies)))
             st.rerun()
         # opaque panel, anchored bottom-left
-        css = float_css_helper(width="350px", left="2rem", bottom="2rem", shadow=12,
+        css = float_css_helper(width="350px", right="2rem", bottom="2rem", shadow=12,
                                background="#ffffff", border="1px solid #e6e9f0",
                                css="border-radius:16px; padding:14px;")
     else:
@@ -216,5 +216,5 @@ with widget:
             st.session_state.chat_open = True
             st.rerun()
         # fixed width so streamlit-float doesn't stretch the button full-width
-        css = float_css_helper(width="64px", left="2rem", bottom="2rem")
+        css = float_css_helper(width="64px", right="2rem", bottom="2rem")
 widget.float(css)
