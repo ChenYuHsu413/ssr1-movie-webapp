@@ -5,8 +5,9 @@ A small end-to-end project that scrapes the 100 movies from
 database, and serves a **FastAPI** website with a poster grid, live search,
 category filters, and an AI chatbot over the catalog.
 
-**🎬 Live demo:** https://ssr1-movie-webapp-chenyu.streamlit.app/
-(the Streamlit version — see [`streamlit_app.py`](streamlit_app.py))
+**🎬 Live demos:**
+- **Next.js (Vercel):** https://ssr1-movie-webapp.vercel.app/ — cinematic dark UI (see [`web/`](web/))
+- **Streamlit:** https://ssr1-movie-webapp-chenyu.streamlit.app/ — see [`streamlit_app.py`](streamlit_app.py)
 
 ## Features
 
