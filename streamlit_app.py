@@ -172,5 +172,6 @@ with widget:
         if st.button("💬", key="chat_open_btn"):
             st.session_state.chat_open = True
             st.rerun()
-        css = float_css_helper(left="2rem", bottom="2rem")
+        # fixed width so streamlit-float doesn't stretch the button full-width
+        css = float_css_helper(width="64px", left="2rem", bottom="2rem")
 widget.float(css)
