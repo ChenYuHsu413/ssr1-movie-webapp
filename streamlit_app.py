@@ -146,30 +146,31 @@ if "msgs" not in st.session_state:
 widget = st.container()
 with widget:
     if st.session_state.chat_open:
-        with st.container(border=True):
-            h1, h2 = st.columns([5, 1])
-            h1.markdown("**💬 电影助手**")
-            if h2.button("✕", key="chat_close"):
-                st.session_state.chat_open = False
-                st.rerun()
-            with st.container(height=300):  # scrollable message log
-                for role, text in st.session_state.msgs:
-                    st.chat_message(role).write(text)
-            with st.form("chat_form", clear_on_submit=True, border=False):
-                fi, fb = st.columns([5, 1])
-                prompt = fi.text_input("msg", label_visibility="collapsed",
-                                       placeholder="问我关于电影的问题…")
-                sent = fb.form_submit_button("↑")
-            if sent and prompt:
-                st.session_state.msgs.append(("user", prompt))
-                with st.spinner("思考中…"):
-                    st.session_state.msgs.append(("assistant", answer(prompt, movies)))
-                st.rerun()
-        css = float_css_helper(width="350px", right="2rem", bottom="2rem",
-                               shadow=12, css="border-radius:16px;")
+        h1, h2 = st.columns([5, 1])
+        h1.markdown("**💬 电影助手**")
+        if h2.button("✕", key="chat_close"):
+            st.session_state.chat_open = False
+            st.rerun()
+        with st.container(height=280):  # scrollable message log
+            for role, text in st.session_state.msgs:
+                st.chat_message(role).write(text)
+        with st.form("chat_form", clear_on_submit=True, border=False):
+            fi, fb = st.columns([5, 1])
+            prompt = fi.text_input("msg", label_visibility="collapsed",
+                                   placeholder="问我关于电影的问题…")
+            sent = fb.form_submit_button("↑")
+        if sent and prompt:
+            st.session_state.msgs.append(("user", prompt))
+            with st.spinner("思考中…"):
+                st.session_state.msgs.append(("assistant", answer(prompt, movies)))
+            st.rerun()
+        # opaque panel, anchored bottom-left
+        css = float_css_helper(width="350px", left="2rem", bottom="2rem", shadow=12,
+                               background="#ffffff", border="1px solid #e6e9f0",
+                               css="border-radius:16px; padding:14px;")
     else:
         if st.button("💬", key="chat_open_btn"):
             st.session_state.chat_open = True
             st.rerun()
-        css = float_css_helper(right="2rem", bottom="2rem")
+        css = float_css_helper(left="2rem", bottom="2rem")
 widget.float(css)
