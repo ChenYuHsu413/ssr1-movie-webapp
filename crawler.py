@@ -142,7 +142,7 @@ def write_readme(movies):
             f"| {i} | {poster} | {m['title']} | {m['categories']} | {m['regions']} | "
             f"{m['minutes']} | {m['release_date']} | {m['score']} | {m['rating']} | {detail} |"
         )
-    with open("README.md", "w", encoding="utf-8") as f:
+    with open("MOVIES.md", "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
 
 
@@ -202,7 +202,7 @@ def main():
     print("=" * 50)
     print(f"Total: {len(all_movies)} movies")
     write_readme(all_movies)
-    print(f"Saved {CSV_FILE}, {DB_FILE}, {XLSX_FILE}, README.md (posters in {POSTER_DIR}/)")
+    print(f"Saved {CSV_FILE}, {DB_FILE}, {XLSX_FILE}, MOVIES.md (posters in {POSTER_DIR}/)")
 
 
 if __name__ == "__main__":
