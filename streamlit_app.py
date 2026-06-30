@@ -97,9 +97,30 @@ st.markdown("""
   [data-testid="stFormSubmitButton"] button {
     background:linear-gradient(135deg,#4f6ef7,#7c8cff)!important; color:#fff!important;
     border:none!important; border-radius:10px!important;}
-  /* chat bubbles */
-  [data-testid="stChatMessage"] {background:transparent; padding:2px 0;}
-  [data-testid="stChatMessageContent"] {font-size:14px;}
+  /* gradient header bar (bleeds to panel edges) */
+  .cbhead {margin:-14px -14px 12px; padding:13px 16px; color:#fff;
+           background:linear-gradient(135deg,#4f6ef7,#7c8cff);
+           border-radius:16px 16px 0 0;}
+  .cbhead .t {font-weight:800; font-size:15px;}
+  .cbhead .s {font-size:11.5px; opacity:.9; margin-top:1px;}
+  /* close button, absolutely placed over the header */
+  .st-key-chat_close {position:absolute!important; top:8px; right:10px; z-index:10;
+                      width:auto!important;}
+  .st-key-chat_close button {color:#fff!important; font-size:16px!important;}
+  /* custom chat bubbles + auto-scroll to newest (column-reverse) */
+  .chatlog {display:flex; flex-direction:column-reverse; gap:10px;
+            overflow-y:auto; max-height:250px; padding:2px 2px 4px;}
+  .row {display:flex; gap:8px; align-items:flex-end;}
+  .row.user {flex-direction:row-reverse;}
+  .av {width:28px; height:28px; border-radius:50%; flex:0 0 auto; font-size:15px;
+       display:flex; align-items:center; justify-content:center;}
+  .bav {background:#eef1ff;}
+  .uav {background:linear-gradient(135deg,#4f6ef7,#7c8cff);}
+  .bubble {max-width:75%; padding:8px 12px; border-radius:14px; font-size:13.5px;
+           line-height:1.45; word-break:break-word;}
+  .bbot {background:#f1f3f7; color:#1c2230; border-bottom-left-radius:4px;}
+  .buser {background:linear-gradient(135deg,#4f6ef7,#7c8cff); color:#fff;
+          border-bottom-right-radius:4px;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -179,14 +200,24 @@ SUGGESTIONS = [("🏆 评分最高", "评分最高的电影"),
 widget = st.container()
 with widget:
     if st.session_state.chat_open:
-        h1, h2 = st.columns([6, 1])
-        h1.markdown("**💬 电影助手**")
-        if h2.button("✕", key="chat_close"):
+        if st.button("✕", key="chat_close"):
             st.session_state.chat_open = False
             st.rerun()
-        with st.container(height=240):  # scrollable message log
-            for role, text in st.session_state.msgs:
-                st.chat_message(role).write(text)
+        st.markdown('<div class="cbhead"><div class="t">🎬 电影小助手</div>'
+                    '<div class="s">问我这 100 部电影的任何问题</div></div>',
+                    unsafe_allow_html=True)
+
+        # message bubbles (reversed + column-reverse CSS = auto-scroll to newest)
+        rows = ""
+        for role, text in reversed(st.session_state.msgs):
+            safe = html.escape(text).replace("\n", "<br>")
+            if role == "user":
+                rows += (f'<div class="row user"><div class="av uav">🙂</div>'
+                         f'<div class="bubble buser">{safe}</div></div>')
+            else:
+                rows += (f'<div class="row"><div class="av bav">🎬</div>'
+                         f'<div class="bubble bbot">{safe}</div></div>')
+        st.markdown(f'<div class="chatlog">{rows}</div>', unsafe_allow_html=True)
 
         # quick-question shortcuts
         picked = None
@@ -198,8 +229,8 @@ with widget:
         with st.form("chat_form", clear_on_submit=True, border=False):
             fi, fb = st.columns([5, 1])
             prompt = fi.text_input("msg", label_visibility="collapsed",
-                                   placeholder="问我关于电影的问题…")
-            sent = fb.form_submit_button("↑")
+                                   placeholder="输入消息…")
+            sent = fb.form_submit_button("➤")
 
         user_msg = picked or (prompt if sent and prompt else None)
         if user_msg:
@@ -207,8 +238,8 @@ with widget:
             with st.spinner("思考中…"):
                 st.session_state.msgs.append(("assistant", answer(user_msg, movies)))
             st.rerun()
-        # opaque panel, anchored bottom-left
-        css = float_css_helper(width="350px", right="2rem", bottom="2rem", shadow=12,
+        # opaque panel, anchored bottom-right
+        css = float_css_helper(width="360px", right="2rem", bottom="2rem", shadow=12,
                                background="#ffffff", border="1px solid #e6e9f0",
                                css="border-radius:16px; padding:14px;")
     else:
