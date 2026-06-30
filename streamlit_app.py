@@ -72,6 +72,34 @@ st.markdown("""
   .foot {display:flex; justify-content:space-between; margin-top:4px; font-size:11.5px;}
   .stars {color:#f5a623; letter-spacing:1px;}
   .date {color:#6b7280;}
+
+  /* ----- chatbot ----- */
+  /* round floating action button (closed state) */
+  .st-key-chat_open_btn button {
+    width:60px; height:60px; border-radius:50%!important;
+    background:linear-gradient(135deg,#4f6ef7,#7c8cff)!important; color:#fff!important;
+    border:none!important; font-size:26px!important; padding:0!important;
+    box-shadow:0 6px 18px rgba(79,110,247,.5)!important; transition:transform .15s;}
+  .st-key-chat_open_btn button:hover {transform:scale(1.08);}
+  .st-key-chat_open_btn button p {font-size:26px!important;}
+  /* close (✕) button */
+  .st-key-chat_close button {
+    background:transparent!important; border:none!important; color:#6b7280!important;
+    box-shadow:none!important; font-size:18px!important;}
+  .st-key-chat_close button:hover {color:#1c2230!important;}
+  /* suggestion chips */
+  [class*="st-key-sugg_"] button {
+    border:1px solid rgba(79,110,247,.35)!important; background:rgba(79,110,247,.08)!important;
+    color:#4f6ef7!important; border-radius:14px!important; font-size:12px!important;
+    padding:4px 6px!important; min-height:0!important; font-weight:600;}
+  [class*="st-key-sugg_"] button:hover {background:#4f6ef7!important; color:#fff!important;}
+  /* send button */
+  [data-testid="stFormSubmitButton"] button {
+    background:linear-gradient(135deg,#4f6ef7,#7c8cff)!important; color:#fff!important;
+    border:none!important; border-radius:10px!important;}
+  /* chat bubbles */
+  [data-testid="stChatMessage"] {background:transparent; padding:2px 0;}
+  [data-testid="stChatMessageContent"] {font-size:14px;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -143,26 +171,41 @@ if "msgs" not in st.session_state:
     st.session_state.msgs = [
         ("assistant", "你好！问我关于这些电影的问题，例如“评分最高的电影”。")]
 
+# (label shown on the chip, query sent to the chatbot)
+SUGGESTIONS = [("🏆 评分最高", "评分最高的电影"),
+               ("😄 喜剧片", "喜剧"),
+               ("📅 1994 年", "1994")]
+
 widget = st.container()
 with widget:
     if st.session_state.chat_open:
-        h1, h2 = st.columns([5, 1])
+        h1, h2 = st.columns([6, 1])
         h1.markdown("**💬 电影助手**")
         if h2.button("✕", key="chat_close"):
             st.session_state.chat_open = False
             st.rerun()
-        with st.container(height=280):  # scrollable message log
+        with st.container(height=240):  # scrollable message log
             for role, text in st.session_state.msgs:
                 st.chat_message(role).write(text)
+
+        # quick-question shortcuts
+        picked = None
+        for i, (col, (label, q)) in enumerate(zip(st.columns(len(SUGGESTIONS)),
+                                                   SUGGESTIONS)):
+            if col.button(label, key=f"sugg_{i}", use_container_width=True):
+                picked = q
+
         with st.form("chat_form", clear_on_submit=True, border=False):
             fi, fb = st.columns([5, 1])
             prompt = fi.text_input("msg", label_visibility="collapsed",
                                    placeholder="问我关于电影的问题…")
             sent = fb.form_submit_button("↑")
-        if sent and prompt:
-            st.session_state.msgs.append(("user", prompt))
+
+        user_msg = picked or (prompt if sent and prompt else None)
+        if user_msg:
+            st.session_state.msgs.append(("user", user_msg))
             with st.spinner("思考中…"):
-                st.session_state.msgs.append(("assistant", answer(prompt, movies)))
+                st.session_state.msgs.append(("assistant", answer(user_msg, movies)))
             st.rerun()
         # opaque panel, anchored bottom-left
         css = float_css_helper(width="350px", left="2rem", bottom="2rem", shadow=12,
