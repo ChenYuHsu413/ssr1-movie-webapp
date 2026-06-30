@@ -8,6 +8,7 @@ import html
 import os
 
 import streamlit as st
+from streamlit_float import float_init, float_css_helper
 
 from db import load_movies
 from chatbot import answer
@@ -23,6 +24,7 @@ for _k in ("GROQ_API_KEY", "GROQ_MODEL", "GEMINI_API_KEY", "GEMINI_MODEL",
         pass
 
 st.set_page_config(page_title="ssr1 Movies", page_icon="🎬", layout="wide")
+float_init()  # enables floating containers (the chat widget)
 
 
 @st.cache_data
@@ -134,18 +136,40 @@ else:
         )
     st.markdown(f'<div class="grid">{"".join(cards)}</div>', unsafe_allow_html=True)
 
-# ---------- chatbot (sidebar) ----------
-with st.sidebar:
-    st.header("💬 电影助手")
-    if "msgs" not in st.session_state:
-        st.session_state.msgs = [
-            ("assistant", "你好！问我关于这些电影的问题，例如“评分最高的电影”。")]
+# ---------- floating chatbot (bottom-right, in-page) ----------
+if "chat_open" not in st.session_state:
+    st.session_state.chat_open = False
+if "msgs" not in st.session_state:
+    st.session_state.msgs = [
+        ("assistant", "你好！问我关于这些电影的问题，例如“评分最高的电影”。")]
 
-    prompt = st.chat_input("问我关于电影的问题…")
-    if prompt:
-        st.session_state.msgs.append(("user", prompt))
-        with st.spinner("思考中…"):
-            st.session_state.msgs.append(("assistant", answer(prompt, movies)))
-
-    for role, text in st.session_state.msgs:
-        st.chat_message(role).write(text)
+widget = st.container()
+with widget:
+    if st.session_state.chat_open:
+        with st.container(border=True):
+            h1, h2 = st.columns([5, 1])
+            h1.markdown("**💬 电影助手**")
+            if h2.button("✕", key="chat_close"):
+                st.session_state.chat_open = False
+                st.rerun()
+            with st.container(height=300):  # scrollable message log
+                for role, text in st.session_state.msgs:
+                    st.chat_message(role).write(text)
+            with st.form("chat_form", clear_on_submit=True, border=False):
+                fi, fb = st.columns([5, 1])
+                prompt = fi.text_input("msg", label_visibility="collapsed",
+                                       placeholder="问我关于电影的问题…")
+                sent = fb.form_submit_button("↑")
+            if sent and prompt:
+                st.session_state.msgs.append(("user", prompt))
+                with st.spinner("思考中…"):
+                    st.session_state.msgs.append(("assistant", answer(prompt, movies)))
+                st.rerun()
+        css = float_css_helper(width="350px", right="2rem", bottom="2rem",
+                               shadow=12, css="border-radius:16px;")
+    else:
+        if st.button("💬", key="chat_open_btn"):
+            st.session_state.chat_open = True
+            st.rerun()
+        css = float_css_helper(right="2rem", bottom="2rem")
+widget.float(css)
